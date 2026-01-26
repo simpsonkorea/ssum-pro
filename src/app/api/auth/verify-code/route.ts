@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Verify code (handles expiry, attempts, and matching)
-    const result = verifyCode(normalizedPhone, purpose, code);
+    const result = await verifyCode(normalizedPhone, purpose, code);
 
     if (!result.success) {
       return NextResponse.json(

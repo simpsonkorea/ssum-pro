@@ -90,7 +90,7 @@ export async function POST(request: NextRequest) {
     const normalizedPhone = phoneValidation.normalized;
 
     // 3. Validate verification token
-    if (!isVerificationTokenValid(verificationToken, normalizedPhone, 'reset')) {
+    if (!(await isVerificationTokenValid(verificationToken, normalizedPhone, 'reset'))) {
       return NextResponse.json(
         { error: '인증이 만료되었습니다. 다시 인증해주세요.' },
         { status: 401 }
@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 9. Consume the verification token (single use)
-    consumeVerificationToken(verificationToken);
+    await consumeVerificationToken(verificationToken);
 
     console.log('[Reset Password] Password updated for user:', {
       id: user.id,

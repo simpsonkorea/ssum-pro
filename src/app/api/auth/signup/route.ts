@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
     const normalizedPhone = phoneValidation.normalized;
 
     // 2.5 Validate verification token
-    if (!isVerificationTokenValid(verificationToken, normalizedPhone, 'signup')) {
+    if (!(await isVerificationTokenValid(verificationToken, normalizedPhone, 'signup'))) {
       return NextResponse.json(
         { error: '전화번호 인증이 유효하지 않습니다. 다시 인증해주세요.' },
         { status: 400 }
@@ -167,7 +167,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Consume (invalidate) the verification token after successful signup
-    consumeVerificationToken(verificationToken);
+    await consumeVerificationToken(verificationToken);
 
     console.log('[Signup] User created:', {
       id: newUser.id,

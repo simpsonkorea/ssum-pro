@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Check rate limits (daily limit + cooldown)
-    const rateCheck = canSendCode(normalizedPhone, purpose);
+    const rateCheck = await canSendCode(normalizedPhone, purpose);
     if (!rateCheck.allowed) {
       return NextResponse.json(
         {
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 6. Generate code and store it
-    const code = createVerificationCode(normalizedPhone, purpose);
+    const code = await createVerificationCode(normalizedPhone, purpose);
     const expiresAt = Date.now() + 3 * 60 * 1000; // 3 minutes from now
 
     // 7. Send SMS
