@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>읽씹당했나</title>
+  <script type="module">
+    import { appLogin, IAP, Storage, closeView, share, generateHapticFeedback, getPlatformOS, getTossShareLink } from 'https://esm.sh/@apps-in-toss/web-framework@1.8.0';
+    window.TossBridge = { appLogin, IAP, Storage, closeView, share, generateHapticFeedback, getPlatformOS, getTossShareLink };
+  </script>
+  <style>
+    :root {
+      --tds-primary: #3182f6;
+      --tds-primary-dark: #1b64da;
+      --tds-danger: #f04452;
+      --tds-success: #00c73c;
+      --tds-gray-900: #212529;
+      --tds-gray-700: #495057;
+      --tds-gray-600: #6b7684;
+      --tds-gray-500: #8b95a1;
+      --tds-gray-400: #b0b8c1;
+      --tds-gray-300: #d1d6db;
+      --tds-gray-100: #f2f4f6;
+      --tds-gray-50: #f7f8f9;
+      --tds-white: #ffffff;
+      --brand-pink: #ec4899;
+      --brand-pink-light: #fdf2f8;
+      --brand-purple: #a855f7;
+      --tds-f11: 11px; --tds-f13: 13px; --tds-f14: 14px; --tds-f15: 15px;
+      --tds-f16: 16px; --tds-f17: 17px; --tds-f20: 20px; --tds-f22: 22px; --tds-f24: 24px;
+      --tds-space-4: 4px; --tds-space-8: 8px; --tds-space-12: 12px;
+      --tds-space-16: 16px; --tds-space-20: 20px; --tds-space-24: 24px; --tds-space-32: 32px;
+      --tds-radius-8: 8px; --tds-radius-12: 12px; --tds-radius-16: 16px; --tds-radius-full: 9999px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html { height: 100%; }
+    body {
+      min-height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+      background: var(--tds-white); color: var(--tds-gray-900); font-size: var(--tds-f16);
+      line-height: 1.5; padding-bottom: env(safe-area-inset-bottom); -webkit-font-smoothing: antialiased;
+    }
+    .t2 { font-size: var(--tds-f24); font-weight: 700; line-height: 1.4; }
+    .t3 { font-size: var(--tds-f22); font-weight: 700; line-height: 1.4; }
+    .t4 { font-size: var(--tds-f20); font-weight: 600; line-height: 1.4; }
+    .t5 { font-size: var(--tds-f17); font-weight: 600; line-height: 1.5; }
+    .t6 { font-size: var(--tds-f15); font-weight: 500; line-height: 1.5; }
+    .t7 { font-size: var(--tds-f13); font-weight: 400; line-height: 1.5; color: var(--tds-gray-600); }
+    .btn {
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; border: none; cursor: pointer; transition: all 0.2s ease;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-xlarge { height: 56px; padding: 0 var(--tds-space-24); border-radius: var(--tds-radius-16); font-size: var(--tds-f17); }
+    .btn-medium { height: 44px; padding: 0 var(--tds-space-16); border-radius: var(--tds-radius-8); font-size: var(--tds-f15); }
+    .btn-primary { background: var(--tds-primary); color: var(--tds-white); }
+    .btn-brand { background: linear-gradient(135deg, var(--brand-pink) 0%, var(--brand-purple) 100%); color: var(--tds-white); }
+    .btn-light { background: var(--tds-gray-100); color: var(--tds-gray-900); }
+    .btn-full { width: 100%; }
+    .btn-pill { border-radius: var(--tds-radius-full); }
+    .card { background: var(--tds-white); border-radius: var(--tds-radius-16); padding: var(--tds-space-20); box-shadow: 0 2px 8px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06); }
+    .list-row { display: flex; align-items: center; gap: var(--tds-space-12); padding: var(--tds-space-16) 0; border-bottom: 1px solid var(--tds-gray-100); }
+    .list-row:last-child { border-bottom: none; }
+    .list-row-icon { font-size: 24px; flex-shrink: 0; }
+    .list-row-content { flex: 1; }
+    .list-row-title { font-size: var(--tds-f15); font-weight: 500; color: var(--tds-gray-900); }
+    .list-row-desc { font-size: var(--tds-f13); color: var(--tds-gray-600); margin-top: 2px; }
+    .badge { display: inline-flex; align-items: center; justify-content: center; height: 24px; padding: 0 var(--tds-space-8); border-radius: var(--tds-radius-full); font-size: var(--tds-f11); font-weight: 600; }
+    .badge-success { background: #e8f5e9; color: #1b5e20; }
+    .safe-top { padding-top: max(env(safe-area-inset-top), 20px); }
+    .container { max-width: 480px; margin: 0 auto; padding: 0 var(--tds-space-20); }
+    .page { min-height: 100vh; display: flex; flex-direction: column; }
+    .page-center { justify-content: center; align-items: center; }
+    .nav-header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--tds-gray-100); padding: var(--tds-space-12) var(--tds-space-20); }
+    .nav-header-inner { max-width: 480px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .nav-title { font-size: var(--tds-f17); font-weight: 700; color: var(--brand-pink); }
+    .nav-user { font-size: var(--tds-f13); color: var(--tds-gray-600); }
+    .animate-bounce { animation: bounce 1.5s ease-in-out infinite; }
+    @keyframes bounce { 0%, 100% { transform: translateY(-8%); } 50% { transform: translateY(0); } }
+    .animate-spin { animation: spin 1s linear infinite; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .animate-pulse { animation: pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .gradient-bg { background: linear-gradient(180deg, var(--brand-pink-light) 0%, var(--tds-white) 50%); }
+    .text-pink { color: var(--brand-pink); }
+    .text-center { text-align: center; }
+    .mb-8 { margin-bottom: var(--tds-space-8); }
+    .mb-16 { margin-bottom: var(--tds-space-16); }
+    .mb-24 { margin-bottom: var(--tds-space-24); }
+    .mt-16 { margin-top: var(--tds-space-16); }
+    .mt-20 { margin-top: var(--tds-space-20); }
+    .review-card { background: var(--tds-white); border-radius: var(--tds-radius-12); padding: var(--tds-space-16); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--tds-space-8); }
+    .stat-item { text-align: center; padding: var(--tds-space-12); background: var(--tds-gray-50); border-radius: var(--tds-radius-8); }
+    .stat-value { font-size: var(--tds-f20); font-weight: 700; color: var(--brand-pink); }
+    .stat-label { font-size: var(--tds-f11); color: var(--tds-gray-600); margin-top: 2px; }
+    .upload-zone { border: 2px dashed var(--tds-gray-300); border-radius: var(--tds-radius-12); padding: var(--tds-space-32); text-align: center; cursor: pointer; transition: all 0.2s; position: relative; }
+    .upload-zone.done { border-color: var(--tds-success); background: #e8f5e9; }
+    .upload-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .chip { display: inline-flex; align-items: center; justify-content: center; height: 36px; padding: 0 var(--tds-space-16); border-radius: var(--tds-radius-full); font-size: var(--tds-f14); font-weight: 500; background: var(--tds-gray-100); color: var(--tds-gray-700); transition: all 0.2s; border: none; cursor: pointer; }
+    .chip.active { background: var(--brand-pink); color: var(--tds-white); }
+    .info-box { background: #fffbeb; border-radius: var(--tds-radius-12); padding: var(--tds-space-16); }
+    .info-box-title { font-size: var(--tds-f14); font-weight: 600; color: #b45309; margin-bottom: var(--tds-space-8); }
+    .info-box-list { font-size: var(--tds-f13); color: #92400e; }
+    .info-box-list li { margin-bottom: var(--tds-space-4); }
+    .price-original { font-size: var(--tds-f13); color: var(--tds-gray-500); text-decoration: line-through; }
+    .price-current { font-size: var(--tds-f24); font-weight: 700; color: var(--brand-pink); }
+    .discount-badge { background: var(--brand-pink-light); color: var(--brand-pink); font-size: var(--tds-f13); font-weight: 600; padding: var(--tds-space-8) var(--tds-space-12); border-radius: var(--tds-radius-8); text-align: center; }
+    .loading-ring { width: 80px; height: 80px; border: 4px solid var(--brand-pink-light); border-top-color: var(--brand-pink); border-radius: 50%; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="module">
+    const API_BASE = 'https://ssum-pro.vercel.app';
+
+    // State - phone 단계 제거됨
+    let state = {
+      step: 'hook', // hook, value, social, login, payment, upload, analyze
+      user: null,   // { id, name, phone } - Toss에서 자동 제공
+      isPaid: false,
+      parsedData: null,
+      selectedName: ''
+    };
+
+    // Toss Login - 이름/전화번호 자동 획득
+    async function tossLogin() {
+      try {
+        const { authorizationCode, referrer } = await window.TossBridge.appLogin();
+        // 서버에서 토큰 교환 및 사용자 정보 획득
+        const res = await fetch(`${API_BASE}/api/auth/toss/callback`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ authorizationCode, referrer })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // user에 phone이 포함됨 (Toss에서 자동 제공)
+          return data.user;
+        }
+        throw new Error('Login failed');
+      } catch (e) {
+        console.error('Toss login error:', e);
+        // 테스트용 폴백
+        return { id: 'toss_' + Date.now(), name: '토스 사용자', phone: null };
+      }
+    }
+
+    // Toss IAP 결제
+    async function tossPurchase() {
+      try {
+        const { products } = await window.TossBridge.IAP.getProductItemList();
+        const product = products.find(p => p.sku === 'ssum_analysis_report');
+        if (!product) return true; // 데모 모드
+
+        return new Promise((resolve) => {
+          const cleanup = window.TossBridge.IAP.createOneTimePurchaseOrder({
+            options: {
+              sku: product.sku,
+              processProductGrant: async ({ orderId }) => {
+                const res = await fetch(`${API_BASE}/api/payment/toss-iap`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ orderId, userKey: state.user?.id })
+                });
+                return res.ok;
+              }
+            },
+            onEvent: (e) => { if (e.type === 'success') { cleanup(); resolve(true); } },
+            onError: (e) => { cleanup(); resolve(e.code === 'INVALID_PRODUCT_ID'); }
+          });
+        });
+      } catch (e) { return true; }
+    }
+
+    async function haptic(type = 'light') {
+      try { await window.TossBridge.generateHapticFeedback({ type }); } catch (e) {}
+    }
+
+    // 공유 링크 생성
+    async function shareResult(reportId) {
+      try {
+        const deepLink = `intoss://chat-decoder/report/${reportId}`;
+        const tossLink = await window.TossBridge.getTossShareLink(deepLink);
+        await window.TossBridge.share({ message: `내 썸 분석 결과를 확인해봐! ${tossLink}` });
+      } catch (e) {
+        console.error('Share error:', e);
+      }
+    }
+
+    function parseCSV(text) {
+      const lines = text.split('\n').filter(l => l.trim());
+      const participants = new Set();
+      const messages = [];
+      const startIdx = lines[0]?.includes('Date,User,Message') ? 1 : 0;
+      for (let i = startIdx; i < lines.length; i++) {
+        const line = lines[i];
+        const match = line.match(/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}),"([^"]+)","(.+)"$/);
+        if (match) {
+          participants.add(match[2]);
+          messages.push(`[${match[1]}] ${match[2]}: ${match[3]}`);
+        } else {
+          const parts = line.split(',');
+          if (parts.length >= 3) {
+            const user = parts[1]?.replace(/"/g, '').trim();
+            const msg = parts.slice(2).join(',').replace(/"/g, '').trim();
+            if (user && msg) { participants.add(user); messages.push(`${user}: ${msg}`); }
+          }
+        }
+      }
+      return { participants: Array.from(participants), messageCount: messages.length, rawText: messages.join('\n') };
+    }
+
+    async function analyze() {
+      if (!state.parsedData || !state.selectedName) return;
+      state.step = 'analyze';
+      render();
+
+      try {
+        const res = await fetch(`${API_BASE}/api/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            conversation: state.parsedData.rawText,
+            myName: state.selectedName,
+            userId: state.user?.id,
+            userPhone: state.user?.phone, // Toss에서 획득한 전화번호
+            platform: 'toss' // 토스 플랫폼 표시 → 서버에서 Toss Push로 알림
+          })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || '분석에 실패했어요');
+
+        await window.TossBridge.Storage.setItem(`report_${data.reportId}`, JSON.stringify(data));
+
+        // 분석 완료 후 리포트 페이지로 이동
+        window.location.href = `${API_BASE}/report/${data.reportId}?from=toss`;
+      } catch (e) {
+        alert(e.message || '분석 중 문제가 생겼어요');
+        state.step = 'upload';
+        render();
+      }
+    }
+
+    function render() {
+      const app = document.getElementById('app');
+
+      // Hook
+      if (state.step === 'hook') {
+        app.innerHTML = `
+          <div class="page page-center gradient-bg">
+            <div class="container text-center">
+              <div class="animate-bounce" style="font-size:64px;margin-bottom:24px">💔</div>
+              <h1 class="t2" style="margin-bottom:12px">"이 사람... 나 좋아하는 걸까?"</h1>
+              <p class="t6" style="color:var(--tds-gray-600);margin-bottom:32px">
+                매일 카톡하면서도 확신이 없어서<br>밤새 대화창만 들여다본 적 있나요?
+              </p>
+              <div style="margin-bottom:40px">
+                <div class="list-row" style="border:none;justify-content:center">
+                  <span class="list-row-icon">😰</span>
+                  <span class="t6">"읽씹당했는데 괜찮은 건가..."</span>
+                </div>
+                <div class="list-row" style="border:none;justify-content:center">
+                  <span class="list-row-icon">🤔</span>
+                  <span class="t6">"ㅋㅋ가 3개면 호감인가, 4개면 호감인가"</span>
+                </div>
+                <div class="list-row" style="border:none;justify-content:center">
+                  <span class="list-row-icon">💭</span>
+                  <span class="t6">"먼저 연락해도 될까?"</span>
+                </div>
+              </div>
+              <button onclick="nextStep('value')" class="btn btn-brand btn-xlarge btn-pill">5초만에 확인하기</button>
+            </div>
+          </div>`;
+        return;
+      }
+
+      // Value
+      if (state.step === 'value') {
+        const items = [
+          { icon: '💯', title: '호감도 점수', desc: '0-100점 정밀 측정' },
+          { icon: '💗', title: '호감 신호 분석', desc: '상대가 보낸 긍정 시그널' },
+          { icon: '⚠️', title: '경고 신호 분석', desc: '놓치면 안 되는 위험 신호' },
+          { icon: '👤', title: '상대방 프로필링', desc: '연애 스타일, 성향 분석' },
+          { icon: '💬', title: '추천 메시지 3개', desc: '바로 복사해서 보낼 수 있어요' },
+          { icon: '🗺️', title: '3주 공략 로드맵', desc: '단계별 액션 플랜' },
+          { icon: '🤖', title: 'AI 연애 코치', desc: '100회 무료 상담' }
+        ];
+        app.innerHTML = `
+          <div class="page gradient-bg">
+            <div class="container" style="padding-top:48px;padding-bottom:32px">
+              <div class="text-center mb-24">
+                <div style="font-size:48px;margin-bottom:16px">🔮</div>
+                <h2 class="t3">AI가 대화를 읽고<br><span class="text-pink">상대의 진심</span>을 알려줘요</h2>
+              </div>
+              <div class="card mb-16">
+                <p class="t5 mb-16">리포트에 포함된 내용</p>
+                ${items.map(i => `
+                  <div class="list-row">
+                    <span class="list-row-icon">${i.icon}</span>
+                    <div class="list-row-content">
+                      <div class="list-row-title">${i.title}</div>
+                      <div class="list-row-desc">${i.desc}</div>
+                    </div>
+                  </div>`).join('')}
+              </div>
+              <div class="card" style="background:var(--brand-pink-light);margin-bottom:24px">
+                <div style="display:flex;align-items:center;gap:12px">
+                  <span style="font-size:32px">📚</span>
+                  <div>
+                    <p class="t6" style="font-weight:600">심리학 + 코칭 기법 기반</p>
+                    <p class="t7">CBT, 행동심리학, 연애 코칭 프레임워크 적용</p>
+                  </div>
+                </div>
+              </div>
+              <button onclick="nextStep('social')" class="btn btn-brand btn-xlarge btn-full">다음</button>
+            </div>
+          </div>`;
+        return;
+      }
+
+      // Social
+      if (state.step === 'social') {
+        const reviews = [
+          { name: '김○○ (27, 여)', text: '진짜 소름... 제가 느낀 것들이 다 맞았어요. 결국 고백 받았어요 💕', score: 78 },
+          { name: '박○○ (31, 남)', text: '읽씹 때문에 고민했는데, 분석 보니까 걔가 원래 답장 느린 스타일이었어요!', score: 65 },
+          { name: '이○○ (24, 여)', text: 'AI 코치가 알려준 메시지 그대로 보냈더니 바로 데이트 신청 받았어요 ㅋㅋ', score: 82 }
+        ];
+        app.innerHTML = `
+          <div class="page gradient-bg">
+            <div class="container" style="padding-top:48px;padding-bottom:32px">
+              <div class="text-center mb-24">
+                <h2 class="t3">이미 <span class="text-pink">12,847명</span>이<br>썸의 확신을 얻었어요</h2>
+              </div>
+              <div style="margin-bottom:24px">
+                ${reviews.map(r => `
+                  <div class="review-card" style="margin-bottom:12px">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                      <span class="t6">${r.name}</span>
+                      <span class="t5 text-pink">${r.score}점</span>
+                    </div>
+                    <p class="t7">${r.text}</p>
+                  </div>`).join('')}
+              </div>
+              <div class="stats-grid mb-24">
+                <div class="stat-item"><div class="stat-value">94%</div><div class="stat-label">분석 정확도</div></div>
+                <div class="stat-item"><div class="stat-value">87%</div><div class="stat-label">커플 성공률</div></div>
+                <div class="stat-item"><div class="stat-value">4.9</div><div class="stat-label">만족도 ⭐</div></div>
+              </div>
+              <button onclick="nextStep('login')" class="btn btn-brand btn-xlarge btn-full">나도 분석받기</button>
+            </div>
+          </div>`;
+        return;
+      }
+
+      // Login (Toss) - 전화번호 입력 단계 제거됨, 바로 결제로 이동
+      if (state.step === 'login') {
+        app.innerHTML = `
+          <div class="page page-center">
+            <div class="container text-center">
+              <div style="font-size:48px;margin-bottom:16px">🔐</div>
+              <h2 class="t3 mb-8">토스로 간편하게 시작해요</h2>
+              <p class="t7 mb-24">로그인하면 분석 완료 시 토스 알림으로 알려드려요</p>
+              <button onclick="handleTossLogin()" class="btn btn-primary btn-xlarge btn-full" style="margin-bottom:16px">
+                토스로 시작하기
+              </button>
+              <p class="t7">로그인하면 서비스 이용약관에 동의하게 돼요</p>
+            </div>
+          </div>`;
+        return;
+      }
+
+      // Payment
+      if (state.step === 'payment') {
+        app.innerHTML = `
+          <div class="page">
+            <header class="nav-header safe-top">
+              <div class="nav-header-inner">
+                <span class="nav-title">읽씹당했나</span>
+                <span class="nav-user">${state.user?.name || '사용자'}님</span>
+              </div>
+            </header>
+            <div class="container" style="padding-top:24px;padding-bottom:32px">
+              <div class="text-center mb-24">
+                <h2 class="t3 mb-8">마지막 단계예요!</h2>
+                <p class="t7">결제 후 바로 대화를 분석해 드릴게요</p>
+              </div>
+              <div class="card mb-16">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+                  <span class="t5">AI 썸 분석 리포트</span>
+                  <div style="text-align:right">
+                    <span class="price-original">49,900원</span>
+                    <span class="price-current" style="margin-left:8px">29,900원</span>
+                  </div>
+                </div>
+                <div style="margin-bottom:16px">
+                  ${['정밀 호감도 분석 리포트','AI 연애 코치 100회 상담','3주 공략 로드맵','평생 보관 가능'].map(t => `
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                      <span style="color:var(--tds-success)">✓</span>
+                      <span class="t7" style="color:var(--tds-gray-700)">${t}</span>
+                    </div>`).join('')}
+                </div>
+                <div class="discount-badge mb-16">🎉 지금 결제하면 40% 할인이 적용돼요</div>
+                <button onclick="handlePurchase()" class="btn btn-primary btn-xlarge btn-full" style="margin-bottom:12px">29,900원 결제하기</button>
+                <button onclick="handleDemoPurchase()" class="btn btn-light btn-medium btn-full">[테스트] 결제 건너뛰기</button>
+              </div>
+              <div style="display:flex;justify-content:center;gap:16px" class="t7">
+                <span>🔒 안전한 결제</span>
+                <span>📱 토스 인앱결제</span>
+              </div>
+            </div>
+          </div>`;
+        return;
+      }
+
+      // Upload
+      if (state.step === 'upload') {
+        app.innerHTML = `
+          <div class="page">
+            <header class="nav-header safe-top">
+              <div class="nav-header-inner">
+                <span class="nav-title">읽씹당했나</span>
+                <span class="nav-user">${state.user?.name || '사용자'}님</span>
+              </div>
+            </header>
+            <div class="container" style="padding-top:24px;padding-bottom:32px">
+              <div class="text-center mb-24">
+                <span class="badge badge-success mb-8">✓ 결제 완료</span>
+                <h2 class="t3 mb-8">이제 대화를 업로드해 주세요</h2>
+                <p class="t7">분석이 끝나면 토스 알림으로 알려드릴게요</p>
+              </div>
+              <div class="info-box mb-16">
+                <div class="info-box-title">📱 대화 내보내기 방법</div>
+                <ol class="info-box-list" style="padding-left:16px">
+                  <li>카카오톡에서 분석할 대화방 열기</li>
+                  <li>우측 상단 ≡ 버튼 탭하기</li>
+                  <li>대화 내용 내보내기 선택</li>
+                  <li>CSV 파일로 저장</li>
+                  <li>여기에 업로드!</li>
+                </ol>
+              </div>
+              <div class="card mb-16">
+                <div class="upload-zone ${state.parsedData?'done':''}">
+                  <input type="file" accept=".csv,.txt" class="upload-input" id="fileInput">
+                  ${state.parsedData ? `
+                    <div style="color:var(--tds-success)">
+                      <div style="font-size:40px;margin-bottom:8px">✓</div>
+                      <p class="t5">파일 업로드 완료!</p>
+                      <p class="t7">${state.parsedData.messageCount}개 메시지 · ${state.parsedData.participants.length}명 참여</p>
+                    </div>
+                  ` : `
+                    <div style="color:var(--tds-gray-500)">
+                      <div style="font-size:40px;margin-bottom:8px">📁</div>
+                      <p class="t6">CSV 파일을 탭해서 선택해 주세요</p>
+                    </div>
+                  `}
+                </div>
+                ${state.parsedData?.participants.length ? `
+                  <div class="mt-20">
+                    <p class="t6 mb-8">🙋 나는 누구인가요?</p>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px">
+                      ${state.parsedData.participants.map(n => `
+                        <button onclick="selectName('${n}')" class="chip ${state.selectedName===n?'active':''}">${n}</button>
+                      `).join('')}
+                    </div>
+                  </div>
+                  ${state.selectedName ? `
+                    <button onclick="analyze()" class="btn btn-brand btn-xlarge btn-full mt-20">분석 시작하기 🔮</button>
+                  ` : ''}
+                ` : ''}
+              </div>
+              <p class="t7 text-center">🔒 대화 내용은 분석 후 즉시 삭제돼요</p>
+            </div>
+          </div>`;
+        document.getElementById('fileInput')?.addEventListener('change', (e) => {
+          const file = e.target.files?.[0];
+          if (file) handleFile(file);
+        });
+        return;
+      }
+
+      // Analyze
+      if (state.step === 'analyze') {
+        app.innerHTML = `
+          <div class="page page-center">
+            <div class="container text-center">
+              <div style="position:relative;width:80px;height:80px;margin:0 auto 24px">
+                <div class="loading-ring animate-spin"></div>
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px">🔮</div>
+              </div>
+              <h2 class="t4 mb-8">AI가 대화를 분석하고 있어요</h2>
+              <p class="t7 mb-24">잠시만 기다려 주세요...</p>
+              <div style="text-align:left;max-width:200px;margin:0 auto">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px" class="t7">
+                  <span style="color:var(--tds-success)">✓</span> 메시지 패턴 분석 중
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px" class="t7">
+                  <span class="animate-pulse">⏳</span> 호감 신호 탐지 중
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;color:var(--tds-gray-400)" class="t7">
+                  <span>○</span> 리포트 생성 중
+                </div>
+              </div>
+            </div>
+          </div>`;
+        return;
+      }
+    }
+
+    // Globals
+    window.nextStep = async (step) => { await haptic(); state.step = step; render(); };
+
+    // 로그인 → 바로 결제 단계로 (phone 단계 제거)
+    window.handleTossLogin = async () => {
+      await haptic();
+      state.user = await tossLogin();
+      if (state.user) {
+        state.step = 'payment'; // phone 스킵, 바로 payment로
+        render();
+      }
+    };
+
+    window.handlePurchase = async () => {
+      await haptic('medium');
+      if (await tossPurchase()) {
+        state.isPaid = true;
+        state.step = 'upload';
+        render();
+      }
+    };
+
+    window.handleDemoPurchase = () => { haptic(); state.isPaid = true; state.step = 'upload'; render(); };
+    window.selectName = (n) => { haptic(); state.selectedName = n; render(); };
+    window.analyze = analyze;
+    window.shareResult = shareResult;
+
+    function handleFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        state.parsedData = parseCSV(e.target?.result);
+        if (state.parsedData.participants.length) state.selectedName = state.parsedData.participants[0];
+        haptic();
+        render();
+      };
+      reader.readAsText(file, 'UTF-8');
+    }
+
+    render();
+  </script>
+</body>
+</html>

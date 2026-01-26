@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback, useRef } from 'react';
+import { useState, useMemo, useEffect, useCallback, useRef, memo } from 'react';
 import Link from 'next/link';
 
 type SignupStep = 'phone' | 'code' | 'name' | 'birthyear' | 'gender' | 'password';
@@ -26,6 +26,68 @@ interface PasswordValidation {
 }
 
 const SIGNUP_STEPS: SignupStep[] = ['phone', 'code', 'name', 'birthyear', 'gender', 'password'];
+
+const ValidationItem = memo(({ valid, text }: { valid: boolean; text: string }) => (
+  <div className={`flex items-center gap-2 text-sm ${valid ? 'text-green-600' : 'text-gray-400'}`}>
+    <span>{valid ? '✓' : '○'}</span>
+    <span>{text}</span>
+  </div>
+));
+ValidationItem.displayName = 'ValidationItem';
+
+const ProgressIndicator = memo(({ currentStepIndex, totalSteps }: { currentStepIndex: number; totalSteps: number }) => (
+  <div className="flex items-center justify-center gap-2 mb-8">
+    {SIGNUP_STEPS.map((step, index) => (
+      <div
+        key={step}
+        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+          index < currentStepIndex
+            ? 'bg-pink-500'
+            : index === currentStepIndex
+            ? 'bg-pink-500 w-4'
+            : 'bg-gray-200'
+        }`}
+      />
+    ))}
+    <span className="ml-2 text-xs text-gray-400">
+      {currentStepIndex + 1}/{totalSteps}
+    </span>
+  </div>
+));
+ProgressIndicator.displayName = 'ProgressIndicator';
+
+const BackButton = memo(({ onClick }: { onClick: () => void }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="absolute left-0 top-0 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+  >
+    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+    </svg>
+  </button>
+));
+BackButton.displayName = 'BackButton';
+
+interface StepContainerProps {
+  children: React.ReactNode;
+  showBack?: boolean;
+  slideDirection: 'forward' | 'backward';
+  currentStepIndex: number;
+  onBack: () => void;
+}
+
+const StepContainer = memo(({ children, showBack = true, slideDirection, currentStepIndex, onBack }: StepContainerProps) => (
+  <div className={`relative transition-all duration-300 ease-out ${
+    slideDirection === 'forward' ? 'animate-slideInRight' : 'animate-slideInLeft'
+  }`}>
+    {showBack && currentStepIndex > 0 && <BackButton onClick={onBack} />}
+    <div className={showBack && currentStepIndex > 0 ? 'pt-8' : ''}>
+      {children}
+    </div>
+  </div>
+));
+StepContainer.displayName = 'StepContainer';
 
 export default function SignupPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -329,61 +391,17 @@ export default function SignupPage() {
     }
   };
 
-  const ValidationItem = ({ valid, text }: { valid: boolean; text: string }) => (
-    <div className={`flex items-center gap-2 text-sm ${valid ? 'text-green-600' : 'text-gray-400'}`}>
-      <span>{valid ? '✓' : '○'}</span>
-      <span>{text}</span>
-    </div>
-  );
-
-  const ProgressIndicator = () => (
-    <div className="flex items-center justify-center gap-2 mb-8">
-      {SIGNUP_STEPS.map((step, index) => (
-        <div
-          key={step}
-          className={`w-2 h-2 rounded-full transition-all duration-300 ${
-            index < currentStepIndex
-              ? 'bg-pink-500'
-              : index === currentStepIndex
-              ? 'bg-pink-500 w-4'
-              : 'bg-gray-200'
-          }`}
-        />
-      ))}
-      <span className="ml-2 text-xs text-gray-400">
-        {currentStepIndex + 1}/{SIGNUP_STEPS.length}
-      </span>
-    </div>
-  );
-
-  const BackButton = () => (
-    <button
-      type="button"
-      onClick={goBack}
-      className="absolute left-0 top-0 p-2 text-gray-400 hover:text-gray-600 transition-colors"
-    >
-      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-      </svg>
-    </button>
-  );
-
-  const StepContainer = ({ children, showBack = true }: { children: React.ReactNode; showBack?: boolean }) => (
-    <div className={`relative transition-all duration-300 ease-out ${
-      slideDirection === 'forward' ? 'animate-slideInRight' : 'animate-slideInLeft'
-    }`}>
-      {showBack && currentStepIndex > 0 && <BackButton />}
-      <div className={showBack && currentStepIndex > 0 ? 'pt-8' : ''}>
-        {children}
-      </div>
-    </div>
-  );
+  const stepContainerProps = {
+    slideDirection,
+    currentStepIndex,
+    onBack: goBack,
+  };
 
   const renderSignupStep = () => {
     switch (signupStep) {
       case 'phone':
         return (
-          <StepContainer showBack={false}>
+          <StepContainer {...stepContainerProps} showBack={false}>
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-2">전화번호를 알려주세요</h2>
               <p className="text-gray-500">본인 인증을 위해 사용됩니다</p>
@@ -424,7 +442,7 @@ export default function SignupPage() {
 
       case 'code':
         return (
-          <StepContainer>
+          <StepContainer {...stepContainerProps}>
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-2">인증번호를 입력해주세요</h2>
               <p className="text-gray-500">
@@ -493,7 +511,7 @@ export default function SignupPage() {
 
       case 'name':
         return (
-          <StepContainer>
+          <StepContainer {...stepContainerProps}>
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-2">이름을 알려주세요</h2>
               <p className="text-gray-500">실명으로 입력해주세요</p>
@@ -524,7 +542,7 @@ export default function SignupPage() {
 
       case 'birthyear':
         return (
-          <StepContainer>
+          <StepContainer {...stepContainerProps}>
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-2">출생연도를 알려주세요</h2>
               <p className="text-gray-500">4자리 숫자로 입력해주세요</p>
@@ -556,7 +574,7 @@ export default function SignupPage() {
 
       case 'gender':
         return (
-          <StepContainer>
+          <StepContainer {...stepContainerProps}>
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-2">성별을 선택해주세요</h2>
               <p className="text-gray-500">분석에 활용됩니다</p>
@@ -600,7 +618,7 @@ export default function SignupPage() {
 
       case 'password':
         return (
-          <StepContainer>
+          <StepContainer {...stepContainerProps}>
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-gray-800 mb-2">비밀번호를 설정해주세요</h2>
               <p className="text-gray-500">안전한 비밀번호를 만들어주세요</p>
@@ -715,7 +733,7 @@ export default function SignupPage() {
           </div>
         )}
 
-        <ProgressIndicator />
+        <ProgressIndicator currentStepIndex={currentStepIndex} totalSteps={SIGNUP_STEPS.length} />
         {renderSignupStep()}
 
         <div className="mt-8 pt-6 border-t border-gray-200 text-center">

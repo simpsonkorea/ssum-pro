@@ -6,12 +6,22 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ait:dev": "serve web -p 3000",
+    "ait:build": "mkdir -p dist && cp -r web/* dist/"
   },
   "dependencies": {
+    "@apps-in-toss/web-framework": "^1.8.0",
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.91.1",
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.3",
+    "nanoid": "^5.1.6",
     "next": "16.1.4",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "solapi": "^5.5.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
