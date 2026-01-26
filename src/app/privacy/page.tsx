@@ -17,9 +17,11 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-lg font-semibold text-gray-900 mb-3">1. 수집하는 개인정보 항목</h2>
             <p className="mb-3">회사는 서비스 제공을 위해 다음과 같은 개인정보를 수집합니다:</p>
+            <p className="mb-2 text-xs text-gray-500">※ 회원가입 방식에 따라 수집 항목이 다릅니다.</p>
             <ul className="list-disc pl-5 space-y-2">
-              <li><strong>필수항목:</strong> 카카오 계정 정보(닉네임, 프로필 사진), 이메일</li>
-              <li><strong>선택항목:</strong> 휴대폰 번호(SMS 알림 수신 시)</li>
+              <li><strong>휴대폰 회원가입 시 (필수):</strong> 휴대폰 번호, 이름, 비밀번호</li>
+              <li><strong>휴대폰 회원가입 시 (선택):</strong> 출생연도, 성별</li>
+              <li><strong>카카오 로그인 시 (필수):</strong> 카카오 계정 정보(닉네임, 프로필 사진, 이메일)</li>
               <li><strong>서비스 이용 시:</strong> 업로드한 대화 내용(분석 후 즉시 삭제)</li>
               <li><strong>자동 수집:</strong> 서비스 이용기록, 접속 로그, 결제 기록</li>
             </ul>
@@ -74,12 +76,16 @@ export default function PrivacyPage() {
                   <td className="border border-gray-300 p-2">AI 분석 처리</td>
                 </tr>
                 <tr>
+                  <td className="border border-gray-300 p-2">Supabase</td>
+                  <td className="border border-gray-300 p-2">회원정보 및 인증 데이터 저장</td>
+                </tr>
+                <tr>
                   <td className="border border-gray-300 p-2">토스페이먼츠</td>
                   <td className="border border-gray-300 p-2">결제 처리</td>
                 </tr>
                 <tr>
                   <td className="border border-gray-300 p-2">솔라피(Solapi)</td>
-                  <td className="border border-gray-300 p-2">SMS/알림톡 발송</td>
+                  <td className="border border-gray-300 p-2">SMS 인증번호 및 알림 발송</td>
                 </tr>
               </tbody>
             </table>
@@ -128,7 +134,8 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <p className="font-semibold">시행일: 2026년 1월 25일</p>
+            <p className="font-semibold">시행일: 2026년 1월 26일 (v1.1)</p>
+            <p className="text-xs text-gray-500 mt-1">변경내역: 휴대폰 회원가입 방식 추가, 수집항목 세분화, Supabase 위탁업체 추가</p>
           </section>
         </div>
 
