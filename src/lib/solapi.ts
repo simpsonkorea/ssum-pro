@@ -1,9 +1,9 @@
 // Solapi SMS/LMS 발송
 import crypto from 'crypto';
 
-const SOLAPI_API_KEY = process.env.SOLAPI_API_KEY!;
-const SOLAPI_API_SECRET = process.env.SOLAPI_API_SECRET!;
-const SENDER_PHONE = process.env.SOLAPI_SENDER_PHONE || '01012345678'; // 등록된 발신번호
+const SOLAPI_API_KEY = (process.env.SOLAPI_API_KEY || '').trim();
+const SOLAPI_API_SECRET = (process.env.SOLAPI_API_SECRET || '').trim();
+const SENDER_PHONE = (process.env.SOLAPI_SENDER_PHONE || '01012345678').trim();
 
 function generateSignature() {
   const date = new Date().toISOString();
