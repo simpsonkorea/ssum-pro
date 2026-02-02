@@ -11,11 +11,13 @@ export const metadata: Metadata = {
     description: "카카오톡 대화를 AI가 분석해 호감도 점수와 공략법을 알려드립니다. 심리학 기반 무료 테스트로 5분 안에 확인하세요.",
     type: "website",
     locale: "ko_KR",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
   },
   twitter: {
     card: "summary_large_image",
     title: "읽씹당했나 - 카톡 대화 AI 분석으로 상대방 마음 확인하기",
     description: "카카오톡 대화를 AI가 분석해 호감도 점수와 공략법을 알려드립니다. 심리학 기반 무료 테스트로 5분 안에 확인하세요.",
+    images: ["/og-image.png"],
   },
 };
 
