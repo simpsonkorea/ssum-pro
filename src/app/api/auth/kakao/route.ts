@@ -10,7 +10,7 @@ export async function GET() {
   kakaoAuthUrl.searchParams.set('response_type', 'code');
   kakaoAuthUrl.searchParams.set(
     'scope',
-    'account_email,phone_number,name,gender,birthyear,plusfriends'
+    'account_email,phone_number,name,gender,birthyear'
   );
 
   return NextResponse.redirect(kakaoAuthUrl.toString());
