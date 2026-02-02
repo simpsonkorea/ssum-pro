@@ -8,10 +8,9 @@ export async function GET() {
   kakaoAuthUrl.searchParams.set('client_id', KAKAO_REST_API_KEY);
   kakaoAuthUrl.searchParams.set('redirect_uri', REDIRECT_URI);
   kakaoAuthUrl.searchParams.set('response_type', 'code');
-  // 카카오싱크 scope (비즈니스 인증 필요)
   kakaoAuthUrl.searchParams.set(
     'scope',
-    'profile_nickname,profile_image,account_email,name,gender,birthyear,phone_number'
+    'account_email,phone_number,name,gender,birthyear,plusfriends'
   );
 
   return NextResponse.redirect(kakaoAuthUrl.toString());
