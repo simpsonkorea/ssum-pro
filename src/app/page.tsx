@@ -172,7 +172,7 @@ export default function Home() {
 
         await payment.requestPayment({
           method: 'CARD',
-          amount: { currency: 'KRW', value: 29900 },
+          amount: { currency: 'KRW', value: 29700 },
           orderId: `order_${Date.now()}`,
           orderName: 'AI 썸 분석 리포트',
           successUrl: `${window.location.origin}/api/payment/success`,
@@ -293,7 +293,7 @@ export default function Home() {
               <span className="text-3xl">📚</span>
               <div>
                 <p className="font-semibold text-gray-800">심리학 + 코칭 기법 기반</p>
-                <p className="text-sm text-gray-600">CBT, 행동심리학, 연애 코칭 프레임워크 적용</p>
+                 <p className="text-sm text-gray-600">심리학 + 코칭 기법 기반</p>
               </div>
             </div>
           </div>
@@ -367,7 +367,7 @@ export default function Home() {
           </div>
 
           <button
-            onClick={() => setStep('login')}
+            onClick={() => router.push('/login')}
             className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white py-4 rounded-xl font-semibold text-lg shadow-lg shadow-pink-500/30 hover:shadow-xl transition-all"
           >
             나도 분석받기
@@ -447,7 +447,7 @@ export default function Home() {
               <span className="font-semibold text-gray-800">AI 썸 분석 리포트</span>
               <div className="text-right">
                 <span className="text-sm text-gray-400 line-through">49,900원</span>
-                <span className="text-2xl font-bold text-pink-500 ml-2">29,900원</span>
+                <span className="text-2xl font-bold text-pink-500 ml-2">29,700원</span>
               </div>
             </div>
 
@@ -480,7 +480,7 @@ export default function Home() {
               onClick={handlePayment}
               className="w-full bg-[#0064FF] text-white py-4 rounded-xl font-semibold text-lg hover:bg-[#0050CC] transition-colors mb-3"
             >
-              29,900원 결제하기
+              29,700원 결제하기
             </button>
 
             {/* Demo button for testing */}
